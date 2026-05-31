@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Bloom",
+    "slug": "bloom-pcos",
+    "version": "1.0.0",
+    "scheme": "bloom",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.diya.bloom"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
