@@ -32,9 +32,10 @@ export function buildCycleDayMap(lastPeriodStart: string, cycleLength: number): 
 }
 
 export function getAverageCycleLength(cycles: Cycle[]): number {
-  if (!cycles.length) return 32;
-  const sum = cycles.reduce((acc, c) => acc + c.cycle_length, 0);
-  return Math.round(sum / cycles.length);
+  const complete = cycles.filter(c => c.cycle_length >= 15);
+  if (!complete.length) return 32;
+  const sum = complete.reduce((acc, c) => acc + c.cycle_length, 0);
+  return Math.round(sum / complete.length);
 }
 
 export function getMostRecentCycle(cycles: Cycle[]): Cycle | null {

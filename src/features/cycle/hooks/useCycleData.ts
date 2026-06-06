@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FloData, Cycle, CyclePhase, FloPredictions } from '../../../types';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { FloData, CyclePhase, FloPredictions } from '../../../types';
 import { storageGet, storageSet, STORAGE_KEYS } from '../../../lib/storage';
 import { floPlaceholderData } from '../data/floPlaceholder';
 import {
@@ -7,8 +7,8 @@ import {
   getAverageCycleLength,
   getCurrentCycleDay,
   getPhaseForDay,
-  getDaysUntil,
 } from '../utils/cycleCalculations';
+import { computePredictions } from '../utils/cyclePredictions';
 import { format } from 'date-fns';
 
 export interface CycleState {
@@ -17,16 +17,18 @@ export interface CycleState {
   cycleLength: number;
   periodLength: number;
   lastPeriodStart: string;
-  cycles: Cycle[];
+  cycles: FloData['cycles'];
   predictions: FloPredictions | null;
+  computedPredictions: (FloPredictions & { confidence: number }) | null;
   isLoading: boolean;
   refreshCycle: () => void;
   savePredictions: (p: FloPredictions) => Promise<void>;
+  clearManualPredictions: () => Promise<void>;
 }
 
 export function useCycleData(): CycleState {
   const [floData, setFloData] = useState<FloData>(floPlaceholderData);
-  const [predictions, setPredictions] = useState<FloPredictions | null>(null);
+  const [manualPredictions, setManualPredictions] = useState<FloPredictions | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadData = useCallback(async () => {
@@ -35,7 +37,7 @@ export function useCycleData(): CycleState {
       const stored = await storageGet<FloData>(STORAGE_KEYS.FLO_DATA);
       if (stored?.cycles?.length) setFloData(stored);
       const storedPreds = await storageGet<FloPredictions>(STORAGE_KEYS.FLO_PREDICTIONS);
-      if (storedPreds) setPredictions(storedPreds);
+      if (storedPreds && !storedPreds.isComputed) setManualPredictions(storedPreds);
     } finally {
       setIsLoading(false);
     }
@@ -46,15 +48,29 @@ export function useCycleData(): CycleState {
   }, [loadData]);
 
   const savePredictions = useCallback(async (p: FloPredictions) => {
-    setPredictions(p);
-    await storageSet(STORAGE_KEYS.FLO_PREDICTIONS, p);
+    const manual = { ...p, isComputed: false };
+    setManualPredictions(manual);
+    await storageSet(STORAGE_KEYS.FLO_PREDICTIONS, manual);
   }, []);
+
+  const clearManualPredictions = useCallback(async () => {
+    setManualPredictions(null);
+    await storageSet(STORAGE_KEYS.FLO_PREDICTIONS, null);
+  }, []);
+
+  const computedPredictions = useMemo(
+    () => computePredictions(floData.cycles),
+    [floData.cycles],
+  );
 
   const mostRecent = getMostRecentCycle(floData.cycles);
   const cycleLength = getAverageCycleLength(floData.cycles);
   const lastPeriodStart = mostRecent?.start_date ?? format(new Date(), 'yyyy-MM-dd');
   const cycleDay = getCurrentCycleDay(lastPeriodStart);
   const phase = getPhaseForDay(Math.min(cycleDay, cycleLength), cycleLength);
+
+  // Manual predictions take precedence; fall back to computed
+  const predictions = manualPredictions ?? computedPredictions;
 
   return {
     cycleDay: Math.min(cycleDay, cycleLength),
@@ -64,8 +80,10 @@ export function useCycleData(): CycleState {
     lastPeriodStart,
     cycles: floData.cycles,
     predictions,
+    computedPredictions,
     isLoading,
     refreshCycle: loadData,
     savePredictions,
+    clearManualPredictions,
   };
 }

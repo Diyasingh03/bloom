@@ -7,6 +7,10 @@ function isValidDate(str: string): boolean {
 function isValidCycle(c: unknown): c is Cycle {
   if (!c || typeof c !== 'object') return false;
   const obj = c as Record<string, unknown>;
+  const ovulationOk =
+    obj.ovulation === undefined ||
+    obj.ovulation === 'N/A' ||
+    (typeof obj.ovulation === 'string' && isValidDate(obj.ovulation));
   return (
     typeof obj.start_date === 'string' &&
     typeof obj.end_date === 'string' &&
@@ -15,7 +19,7 @@ function isValidCycle(c: unknown): c is Cycle {
     isValidDate(obj.start_date as string) &&
     isValidDate(obj.end_date as string) &&
     obj.cycle_length > 0 &&
-    obj.period_length > 0
+    ovulationOk
   );
 }
 

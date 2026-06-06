@@ -12,6 +12,7 @@ export interface Cycle {
   end_date: string;
   cycle_length: number;
   period_length: number;
+  ovulation?: string;
 }
 
 export interface FloData {
@@ -22,6 +23,8 @@ export interface FloPredictions {
   ovulationDate: string;
   nextCycleStart: string;
   lastUpdated: string;
+  confidence?: number;
+  isComputed?: boolean;
 }
 
 // ─── Meals ─────────────────────────────────────────────────────────────────

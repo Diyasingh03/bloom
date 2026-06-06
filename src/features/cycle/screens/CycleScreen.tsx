@@ -87,8 +87,11 @@ export function CycleScreen() {
           {/* Flo Predictions */}
           <FloPredictionsCard
             predictions={cycle.predictions}
+            computedPredictions={cycle.computedPredictions}
             onSave={cycle.savePredictions}
+            onClear={cycle.clearManualPredictions}
             onRefreshPlan={gemini.regenerate}
+            cycleCount={cycle.cycles.filter(c => c.cycle_length >= 15).length}
           />
 
           {/* Cycle History */}
