@@ -1,30 +1,26 @@
 # Bloom — Personal PCOS Management App
 
-A personal iOS app I built after being diagnosed with PCOS. It combines menstrual cycle tracking, phase-synced workouts, PCOS-friendly meal planning, and a daily Gemini AI plan — all tuned to my actual life, constraints, and body.
+A personal iOS app built after a PCOS diagnosis. It connects cycle tracking, phase-synced workouts, PCOS-friendly meal planning, and a daily Gemini AI plan — tuned to real-life constraints, not aspirational ones.
 
 ---
 
-## Why I built this
+## Why
 
-Getting a PCOS diagnosis comes with a lot of "here's what you should do" advice that almost never accounts for what your actual life looks like. Generic fitness apps don't know you're in your luteal phase and exhausted. Recipe apps don't know you only have a stovetop and a microwave and don't cook with raw meat. Period trackers show you your cycle but don't tell you what to do with that information.
-
-I wanted one app that connected all of it — what phase I'm in, what I should eat today from what I actually have in my kitchen, what kind of workout makes sense for my body right now, and why. And I wanted it to feel nice enough that I'd actually open it every morning.
-
-The other piece: I use Flo to track my periods and it has years of my data. I'm waiting on my JSON export, but in the meantime the app runs on 24 months of PCOS-realistic placeholder cycles (32–40 day irregular cycles) so everything works from day one.
+Generic apps don't know you're in luteal phase and exhausted, or that you only have a stovetop, or that your cycle runs 32–44 days. Bloom connects all of it: current phase → what to eat from what's in the kitchen → what workout makes sense right now → why.
 
 ---
 
-## Thought process
+## How it works
 
-**Cycle-first design.** Everything in the app flows from the current phase. PCOS cycles are longer and more irregular than average — the phase boundaries are adjusted for that (menstrual 1–5, follicular 6–13, ovulatory 14–(cycleLength−14), luteal remainder). The phase drives the workout intensity, meal anti-inflammatory focus, AI prompt context, and the colour of every card on screen.
+**Cycle-first.** Everything flows from the current phase. PCOS-adjusted boundaries: menstrual 1–5, follicular 6–13, ovulatory 14–(cycleLength−14), luteal remainder. The phase drives workout intensity, meal focus, AI prompt context, and screen colour.
 
-**Real constraints, not aspirational ones.** The meals and workouts are built around what I actually have: a stovetop, a microwave, no oven; eggs, ham, spinach, arugula, avocado, dairy, frozen patties, chicken if I try; a pilates mat, water bottles, two gallon milk jugs (~8lb), a treadmill, and a stationary cycle. No gym for at least 12 weeks. Every static meal and workout in the app respects this — nothing recommends an oven or a barbell.
+**Real constraints.** Meals and workouts are built around actual equipment and pantry items — For example, stovetop/microwave only, no oven; pilates mat, water bottles, two ~8lb gallon jugs, treadmill, stationary cycle; no gym.
 
-**One AI call a day, used well.** Gemini's free tier allows 20 requests per day. Rather than scatter small calls across features, I make one rich call on first app open — injecting the current phase, Flo predictions, live grocery list, equipment, and cooking constraints — cache the result for the whole day, and surface pieces of it across every tab. If the call fails, the app falls back to static data silently.
+**One AI call a day.** One rich Gemini call on first open — injects phase, cycle predictions, live grocery list, equipment, and cooking constraints — cached for the whole day. Falls back to static data silently on failure.
 
-**Grocery list as context, not just a list.** The pantry tab isn't just a shopping list — it's the live input to the AI prompt. When I add a new ingredient, it shows up in tomorrow's meal suggestions. The connection is explicit: a banner on the pantry screen says "Your pantry is sent to the AI every day."
+**Predictions from your data.** Cycle predictions use an exponential decay–weighted average of your last 6 cycles (±std dev confidence interval). Ovulation is predicted from your historically consistent luteal phase. Manual override always available.
 
-**Flo predictions as first-class data.** Rather than ignoring Flo's ovulation and next-period predictions, they're injected into the AI prompt so recommendations can shift — e.g. if ovulation is tomorrow, suggest a peak-energy workout today; if period is in two days, lean into anti-cramp foods and gentler movement.
+**Pantry as AI context.** Toggling a grocery item in/out of stock directly changes what shows up in tomorrow's AI meal suggestions.
 
 ---
 
@@ -32,12 +28,12 @@ The other piece: I use Flo to track my periods and it has years of my data. I'm 
 
 | Tab | What it does |
 |---|---|
-| **Home** | Daily greeting, AI insight, today's breakfast and featured workout, quick symptom log |
-| **Cycle** | SVG cycle wheel showing current day, phase history, Flo predictions card with edit + refresh |
-| **Meals** | AI meal plan for today + browsable static meals filtered by phase |
-| **Move** | AI workout of the day + static workouts filtered by phase, with full step-by-step detail modal |
-| **Pantry** | Grocery/pantry list by category; toggling in-stock items updates the AI prompt |
-| **Track** | Daily symptom logger across 8 PCOS symptoms (bloating, fatigue, acne, mood, hair changes, cravings, cramps, brain fog), 7-day history |
+| **Home** | Daily greeting, AI insight, today's breakfast + featured workout, quick symptom log |
+| **Cycle** | SVG cycle wheel, phase tips, auto-computed predictions with confidence range, cycle history, JSON import |
+| **Meals** | AI meal plan for today + static meals filtered by phase |
+| **Move** | AI workout of the day + static workouts by phase, full step-by-step detail modal |
+| **Pantry** | Grocery list by category; in-stock items feed the daily AI prompt |
+| **Track** | Daily symptom logger (8 PCOS symptoms), 7-day history |
 
 ---
 
@@ -46,10 +42,9 @@ The other piece: I use Flo to track my periods and it has years of my data. I'm 
 | | |
 |---|---|
 | Framework | React Native + Expo SDK 54 |
-| Routing | Expo Router v6 (file-based) |
-| AI | Gemini 2.0 Flash (REST, free tier) |
-| Storage | AsyncStorage (all data local, no backend) |
-| Animation | React Native Reanimated v4 |
+| Routing | Expo Router v4 (file-based) |
+| AI | Gemini 2.5 Flash (REST, free tier) |
+| Storage | AsyncStorage — all data local, no backend |
 | Graphics | React Native SVG (cycle wheel) |
 | Dates | date-fns v4 |
 
@@ -57,35 +52,50 @@ The other piece: I use Flo to track my periods and it has years of my data. I'm 
 
 ## Setup
 
-**Requirements:** Node.js 20+, Expo Go (SDK 54) on iPhone.
+Requires Node.js 20+ and Expo Go (SDK 54) on iPhone.
 
 ```bash
-git clone <repo>
-cd sync
 npm install --legacy-peer-deps
 ```
 
-Create a `.env` file in the root:
-
+Create `.env`:
 ```
 EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-Get a free Gemini API key at [aistudio.google.com](https://aistudio.google.com). The free tier allows 20 requests/day — more than enough since the app makes one per day.
+Free key at [aistudio.google.com](https://aistudio.google.com) — 20 requests/day, the app uses one. Works fully without a key (static data fallback).
 
 ```bash
 npx expo start
-# or on hotel/restricted WiFi:
-npx expo start --tunnel
+npx expo start --tunnel  # restricted WiFi
 ```
 
-Scan the QR code with Expo Go. The app works fully without the API key — it just uses static meal and workout data instead of AI-generated content.
+---
+
+## Importing cycle data
+
+On the Cycle tab → **+ Import data** — paste a JSON export in this format:
+
+```json
+{
+  "cycles": [
+    {
+      "start_date": "2026-01-01",
+      "end_date": "2026-02-04",
+      "cycle_length": 35,
+      "period_length": 5,
+      "ovulation": "2026-01-20"
+    }
+  ]
+}
+```
+
+`ovulation` is optional. Importing replaces the current cycle history and immediately recalculates predictions.
 
 ---
 
 ## Future plans
 
-- **Real Flo data import** — `src/lib/floImport.ts` is ready to parse the Flo JSON export once I receive it; swapping in real cycle history replaces the placeholder data with no other code changes
 - Symptom trend charts across the cycle
-- Meal ingredient → grocery list shortcut (tap an ingredient to add it to Pantry)
-- DoorDash deep-link for AI-suggested ingredients not in the pantry
+- Meal ingredient → Pantry shortcut (tap an ingredient to add it)
+- More robust prediction model.
