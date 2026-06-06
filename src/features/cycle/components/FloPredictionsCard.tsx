@@ -89,21 +89,11 @@ export function FloPredictionsCard({
               <Text style={styles.sourceManual}>Manually overridden</Text>
             )}
           </View>
-          <View style={styles.actions}>
-            <TouchableOpacity style={styles.actionBtn} onPress={openModal}>
-              <Text style={styles.actionBtnText}>
-                {isManual ? '✏️ Edit' : '✏️ Override'}
-              </Text>
-            </TouchableOpacity>
-            {displayed && (
-              <TouchableOpacity
-                style={[styles.actionBtn, styles.refreshBtn]}
-                onPress={onRefreshPlan}
-              >
-                <Text style={styles.actionBtnText}>✨ Refresh plan</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          <TouchableOpacity style={styles.actionBtn} onPress={openModal}>
+            <Text style={styles.actionBtnText}>
+              {isManual ? '✏️ Edit' : '✏️ Override'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {displayed ? (
@@ -125,6 +115,9 @@ export function FloPredictionsCard({
                 )}
               </View>
             </View>
+            <TouchableOpacity style={styles.refreshBtn} onPress={onRefreshPlan}>
+              <Text style={styles.refreshBtnText}>✨ Refresh AI plan</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <Text style={styles.emptyText}>
@@ -188,10 +181,10 @@ const styles = StyleSheet.create({
   title: { ...Typography.heading3 },
   source: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
   sourceManual: { fontSize: 11, color: Colors.pastelPurple, marginTop: 2 },
-  actions: { flexDirection: 'row', gap: 8 },
   actionBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border },
-  refreshBtn: { backgroundColor: Colors.pastelPurple + '40', borderColor: Colors.pastelPurple },
   actionBtnText: { fontSize: 12, fontWeight: '500', color: Colors.textDark },
+  refreshBtn: { alignSelf: 'flex-start', marginTop: 12, paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full, backgroundColor: Colors.pastelPurple + '40', borderWidth: 1, borderColor: Colors.pastelPurple },
+  refreshBtnText: { fontSize: 12, fontWeight: '500', color: Colors.textDark },
   predRows: { gap: 10 },
   predRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   predIcon: { fontSize: 20, marginTop: 2 },

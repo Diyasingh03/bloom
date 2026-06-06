@@ -1,5 +1,6 @@
 import { DailyAIContent, CyclePhase, FloPredictions, GroceryItem } from '../../types';
 import { buildDailyPrompt } from '../prompts/dailyPrompt';
+import { config } from '../../lib/config';
 
 const GEMINI_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
@@ -13,7 +14,7 @@ interface GenerateParams {
 }
 
 export async function generateDailyContent(params: GenerateParams): Promise<DailyAIContent | null> {
-  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+  const apiKey = config.geminiApiKey;
   if (!apiKey || apiKey === 'your_gemini_api_key_here') return null;
 
   const prompt = buildDailyPrompt(params);

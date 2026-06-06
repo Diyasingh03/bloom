@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { format } from 'date-fns';
 import { useCycleData } from '../../cycle/hooks/useCycleData';
 import { useGemini } from '../../../ai/context/GeminiContext';
@@ -10,6 +10,7 @@ import { WorkoutDetailModal } from '../../workouts/components/WorkoutDetailModal
 import { QuickSymptomRow } from '../components/QuickSymptomRow';
 import { AIStatusBadge } from '../../../components/AIStatusBadge';
 import { PhaseGradient } from '../../../components/PhaseGradient';
+import { PrivacyPolicyModal } from '../../../components/PrivacyPolicyModal';
 import { meals as staticMeals } from '../../meals/data/meals';
 import { workouts as staticWorkouts } from '../../workouts/data/workouts';
 import { Colors, Typography, Spacing } from '../../../constants/theme';
@@ -27,6 +28,7 @@ export function HomeScreen() {
   const cycle = useCycleData();
   const gemini = useGemini();
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | (AIWorkout & { phase?: CyclePhase }) | null>(null);
+  const [privacyVisible, setPrivacyVisible] = useState(false);
 
   // Fallback meal and workout from static data
   const phaseStaticMeals = staticMeals.filter((m) => m.phases.includes(cycle.phase) && m.type === 'breakfast');
@@ -56,12 +58,22 @@ export function HomeScreen() {
               <Text style={styles.greeting}>{getGreeting()}, Diya 🌸</Text>
               <Text style={styles.dateLabel}>{format(new Date(), 'EEEE, d MMMM')}</Text>
             </View>
-            <AIStatusBadge
-              isUsingFallback={gemini.isUsingFallback}
-              isRegenerating={gemini.isRegenerating}
-              error={gemini.error}
-            />
+            <View style={styles.headerRight}>
+              <AIStatusBadge
+                isUsingFallback={gemini.isUsingFallback}
+                isRegenerating={gemini.isRegenerating}
+                error={gemini.error}
+              />
+              <TouchableOpacity
+                onPress={() => setPrivacyVisible(true)}
+                style={styles.infoBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text style={styles.infoBtnText}>ℹ️</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+          <PrivacyPolicyModal visible={privacyVisible} onClose={() => setPrivacyVisible(false)} />
 
           {/* AI motivational message */}
           {gemini.dailyContent?.motivationalMessage && (
@@ -134,6 +146,9 @@ const styles = StyleSheet.create({
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.white },
   scroll: { gap: 20, paddingTop: 16, paddingBottom: 24 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 20, paddingBottom: 4 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  infoBtn: { padding: 4 },
+  infoBtnText: { fontSize: 18 },
   greeting: { ...Typography.heading1, fontSize: 22 },
   dateLabel: { ...Typography.body, fontSize: 14, marginTop: 2 },
   motRow: { paddingHorizontal: 20 },

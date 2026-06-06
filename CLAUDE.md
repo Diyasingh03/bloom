@@ -66,8 +66,17 @@ One Gemini call per day, cached in AsyncStorage at `@bloom_daily_ai`.
 - **`prompts/dailyPrompt.ts`** — builds the full prompt; injects phase, cycle day, in-stock grocery items, Flo predictions, equipment list, and cooking constraints
 - **`services/geminiService.ts`** — raw fetch to `gemini-2.0-flash:generateContent`, strips markdown fences, parses JSON, returns `DailyAIContent | null`
 - **`hooks/useGeminiDaily.ts`** — cache check (stored date == today?), calls service if stale, falls back silently on error; exposes `regenerate()` to force a fresh call
+- **`context/GeminiContext.tsx`** — `GeminiProvider` composes `useCycleData` + `useGroceryList` + `useGeminiDaily` into a single context; screens consume AI state via `useGemini()`, never the hook directly
 
 When `isUsingFallback` is true, screens fall back to static data from `meals.ts` / `workouts.ts`.
+
+### Shared components (`src/components/`)
+
+Cross-feature primitives: `Card` (generic surface), `PhaseGradient` (phase-tinted `LinearGradient` wrapper), `PhasePills` (phase selector chips), `AIStatusBadge` (live/fallback indicator). Do not add feature-specific components here.
+
+### Types (`src/types/index.ts`)
+
+Single source of truth for all domain types: `CyclePhase`, `Cycle`, `FloData`, `FloPredictions`, `Meal`, `Workout`, `SymptomLog`, `GroceryItem`, `DailyAIContent`, and the `PhaseTheme` UI helper. `src/ai/types.ts` is just a re-export shim — import from `src/types` directly.
 
 ### Storage (`src/lib/storage.ts`)
 
@@ -77,9 +86,12 @@ All AsyncStorage access goes through `storageGet<T>` / `storageSet<T>` / `storag
 
 `Colors`, `PhaseThemes`, `Spacing`, `Radius`, `Typography` are the only sources of truth for visual values. `PhaseThemes[phase].primary` drives phase-tinted UI. All backgrounds are `Colors.white` — no off-white surfaces.
 
-### Cycle phase logic (`src/features/cycle/utils/cycleCalculations.ts`)
+### Cycle phase logic (`src/features/cycle/utils/`)
 
-PCOS-adjusted phase boundaries: menstrual days 1–5, follicular 6–13, ovulatory 14–(cycleLength−14), luteal remainder. Phase is derived from `useCycleData()` which reads placeholder Flo data until a real Flo JSON export is imported via `src/lib/floImport.ts`.
+- **`cycleCalculations.ts`** — PCOS-adjusted phase boundaries: menstrual days 1–5, follicular 6–13, ovulatory 14–(cycleLength−14), luteal remainder
+- **`cyclePredictions.ts`** — derives `FloPredictions` (ovulation date, next cycle start) from `FloData`; used when no real Flo export is present
+
+Phase is derived from `useCycleData()` which reads placeholder data from `cycle/data/floPlaceholder.ts` until a real Flo JSON export is imported via `src/lib/floImport.ts`.
 
 ## Environment
 

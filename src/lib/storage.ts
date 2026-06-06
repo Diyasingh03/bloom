@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   DAILY_AI: '@bloom_daily_ai',
   SYMPTOMS: '@bloom_symptoms',
   GROCERIES: '@bloom_groceries',
+  DISCLAIMER_ACCEPTED: '@bloom_disclaimer_accepted',
 } as const;
 
 type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

@@ -1,10 +1,11 @@
-import React from 'react';
-import { ScrollView, View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useCycleData } from '../hooks/useCycleData';
 import { useGemini } from '../../../ai/context/GeminiContext';
 import { CircularCycleView } from '../components/CircularCycleView';
 import { CycleHistoryList } from '../components/CycleHistoryList';
 import { FloPredictionsCard } from '../components/FloPredictionsCard';
+import { ImportCycleModal } from '../components/ImportCycleModal';
 import { PhaseGradient } from '../../../components/PhaseGradient';
 import { Colors, Typography, PhaseThemes } from '../../../constants/theme';
 
@@ -42,6 +43,7 @@ const PHASE_TIPS: Record<string, string[]> = {
 export function CycleScreen() {
   const cycle = useCycleData();
   const gemini = useGemini();
+  const [importVisible, setImportVisible] = useState(false);
 
   const tips = PHASE_TIPS[cycle.phase] ?? [];
   const phaseTheme = PhaseThemes[cycle.phase];
@@ -96,8 +98,26 @@ export function CycleScreen() {
 
           {/* Cycle History */}
           <View style={styles.historySection}>
+            <View style={styles.historyHeader}>
+              <Text style={styles.historyTitle}>Cycle History</Text>
+              <TouchableOpacity
+                style={styles.importBtn}
+                onPress={() => setImportVisible(true)}
+              >
+                <Text style={styles.importBtnText}>+ Import data</Text>
+              </TouchableOpacity>
+            </View>
             <CycleHistoryList cycles={cycle.cycles} />
           </View>
+
+          <ImportCycleModal
+            visible={importVisible}
+            onClose={() => setImportVisible(false)}
+            onImported={() => {
+              setImportVisible(false);
+              cycle.refreshCycle();
+            }}
+          />
 
           <View style={{ height: 40 }} />
         </ScrollView>
@@ -121,4 +141,8 @@ const styles = StyleSheet.create({
   tipBullet: { fontSize: 16, fontWeight: '700', marginTop: 1 },
   tipText: { ...Typography.body, fontSize: 14, flex: 1, lineHeight: 20 },
   historySection: {},
+  historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 4 },
+  historyTitle: { ...Typography.heading3 },
+  importBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: Colors.pastelPurple },
+  importBtnText: { fontSize: 13, fontWeight: '600', color: Colors.pastelPurple },
 });
