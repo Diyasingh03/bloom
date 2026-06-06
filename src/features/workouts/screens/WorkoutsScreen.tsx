@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { useCycleData } from '../../cycle/hooks/useCycleData';
-import { useGeminiDaily } from '../../../ai/hooks/useGeminiDaily';
-import { useGroceryList } from '../../groceries/hooks/useGroceryList';
+import { useGemini } from '../../../ai/context/GeminiContext';
 import { WorkoutCard } from '../components/WorkoutCard';
 import { WorkoutDetailModal } from '../components/WorkoutDetailModal';
 import { PhasePills } from '../../../components/PhasePills';
@@ -16,18 +15,9 @@ type WorkoutData = Workout | (AIWorkout & { phase?: CyclePhase });
 
 export function WorkoutsScreen() {
   const cycle = useCycleData();
-  const { inStockItems } = useGroceryList();
+  const gemini = useGemini();
   const [selectedPhase, setSelectedPhase] = useState<CyclePhase | 'all'>(cycle.phase);
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutData | null>(null);
-
-  const gemini = useGeminiDaily({
-    phase: cycle.phase,
-    cycleDay: cycle.cycleDay,
-    cycleLength: cycle.cycleLength,
-    inStockItems,
-    predictions: cycle.predictions,
-    ready: !cycle.isLoading,
-  });
 
   const phaseFilter = selectedPhase === 'all' ? cycle.phase : selectedPhase as CyclePhase;
   const filteredWorkouts = staticWorkouts.filter((w) => w.phase === phaseFilter);
@@ -40,7 +30,7 @@ export function WorkoutsScreen() {
             <>
               <View style={styles.header}>
                 <Text style={styles.title}>Move</Text>
-                <AIStatusBadge isUsingFallback={gemini.isUsingFallback} />
+                <AIStatusBadge isUsingFallback={gemini.isUsingFallback} isRegenerating={gemini.isRegenerating} error={gemini.error} />
               </View>
 
               {/* AI Featured Workout */}

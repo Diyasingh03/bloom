@@ -1,8 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { useCycleData } from '../hooks/useCycleData';
-import { useGeminiDaily } from '../../../ai/hooks/useGeminiDaily';
-import { useGroceryList } from '../../groceries/hooks/useGroceryList';
+import { useGemini } from '../../../ai/context/GeminiContext';
 import { CircularCycleView } from '../components/CircularCycleView';
 import { CycleHistoryList } from '../components/CycleHistoryList';
 import { FloPredictionsCard } from '../components/FloPredictionsCard';
@@ -42,15 +41,7 @@ const PHASE_TIPS: Record<string, string[]> = {
 
 export function CycleScreen() {
   const cycle = useCycleData();
-  const { inStockItems } = useGroceryList();
-  const gemini = useGeminiDaily({
-    phase: cycle.phase,
-    cycleDay: cycle.cycleDay,
-    cycleLength: cycle.cycleLength,
-    inStockItems,
-    predictions: cycle.predictions,
-    ready: !cycle.isLoading,
-  });
+  const gemini = useGemini();
 
   const tips = PHASE_TIPS[cycle.phase] ?? [];
   const phaseTheme = PhaseThemes[cycle.phase];

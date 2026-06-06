@@ -28,7 +28,7 @@ export function CyclePhaseCard({ phase, cycleDay, cycleLength, insight }: Props)
           <Text style={styles.dayCount}>Day {cycleDay}</Text>
         </View>
 
-        <Text style={styles.insight} numberOfLines={3}>{displayInsight}</Text>
+        <Text style={styles.insight}>{displayInsight}</Text>
 
         <View style={styles.progressSection}>
           <View style={styles.progressBar}>

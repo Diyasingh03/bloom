@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import { useCycleData } from '../../cycle/hooks/useCycleData';
-import { useGeminiDaily } from '../../../ai/hooks/useGeminiDaily';
-import { useGroceryList } from '../../groceries/hooks/useGroceryList';
+import { useGemini } from '../../../ai/context/GeminiContext';
 import { MealCard } from '../components/MealCard';
 import { PhasePills } from '../../../components/PhasePills';
 import { PhaseGradient } from '../../../components/PhaseGradient';
@@ -15,17 +14,8 @@ const MEAL_TYPES: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
 export function MealsScreen() {
   const cycle = useCycleData();
-  const { inStockItems } = useGroceryList();
+  const gemini = useGemini();
   const [filter, setFilter] = useState<CyclePhase | 'all'>(cycle.phase);
-
-  const gemini = useGeminiDaily({
-    phase: cycle.phase,
-    cycleDay: cycle.cycleDay,
-    cycleLength: cycle.cycleLength,
-    inStockItems,
-    predictions: cycle.predictions,
-    ready: !cycle.isLoading,
-  });
 
   const filteredStatic = filter === 'all'
     ? staticMeals
@@ -38,7 +28,7 @@ export function MealsScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.header}>
           <Text style={styles.title}>Meals</Text>
-          <AIStatusBadge isUsingFallback={gemini.isUsingFallback} />
+          <AIStatusBadge isUsingFallback={gemini.isUsingFallback} isRegenerating={gemini.isRegenerating} error={gemini.error} />
         </View>
 
         <FlatList

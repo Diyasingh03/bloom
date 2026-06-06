@@ -2,8 +2,7 @@ import React from 'react';
 import { ScrollView, View, Text, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import { format } from 'date-fns';
 import { useCycleData } from '../../cycle/hooks/useCycleData';
-import { useGeminiDaily } from '../../../ai/hooks/useGeminiDaily';
-import { useGroceryList } from '../../groceries/hooks/useGroceryList';
+import { useGemini } from '../../../ai/context/GeminiContext';
 import { CyclePhaseCard } from '../../cycle/components/CyclePhaseCard';
 import { MealCard } from '../../meals/components/MealCard';
 import { WorkoutCard } from '../../workouts/components/WorkoutCard';
@@ -26,17 +25,8 @@ function getGreeting(): string {
 
 export function HomeScreen() {
   const cycle = useCycleData();
-  const { inStockItems } = useGroceryList();
+  const gemini = useGemini();
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | (AIWorkout & { phase?: CyclePhase }) | null>(null);
-
-  const gemini = useGeminiDaily({
-    phase: cycle.phase,
-    cycleDay: cycle.cycleDay,
-    cycleLength: cycle.cycleLength,
-    inStockItems,
-    predictions: cycle.predictions,
-    ready: !cycle.isLoading,
-  });
 
   // Fallback meal and workout from static data
   const phaseStaticMeals = staticMeals.filter((m) => m.phases.includes(cycle.phase) && m.type === 'breakfast');
@@ -66,7 +56,11 @@ export function HomeScreen() {
               <Text style={styles.greeting}>{getGreeting()}, Diya 🌸</Text>
               <Text style={styles.dateLabel}>{format(new Date(), 'EEEE, d MMMM')}</Text>
             </View>
-            <AIStatusBadge isUsingFallback={gemini.isUsingFallback} />
+            <AIStatusBadge
+              isUsingFallback={gemini.isUsingFallback}
+              isRegenerating={gemini.isRegenerating}
+              error={gemini.error}
+            />
           </View>
 
           {/* AI motivational message */}

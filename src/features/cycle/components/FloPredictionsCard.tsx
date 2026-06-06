@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Platform, KeyboardAvoidingView } from 'react-native';
 import { FloPredictions } from '../../../types';
 import { Colors, Typography, Radius, Spacing } from '../../../constants/theme';
 import { Card } from '../../../components/Card';
@@ -97,7 +97,10 @@ export function FloPredictionsCard({ predictions, onSave, onRefreshPlan }: Props
       </Card>
 
       <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit Flo Predictions</Text>
             <Text style={styles.inputLabel}>Predicted ovulation date</Text>
@@ -128,7 +131,7 @@ export function FloPredictionsCard({ predictions, onSave, onRefreshPlan }: Props
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );

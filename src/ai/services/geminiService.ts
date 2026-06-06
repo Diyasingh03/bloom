@@ -2,7 +2,7 @@ import { DailyAIContent, CyclePhase, FloPredictions, GroceryItem } from '../../t
 import { buildDailyPrompt } from '../prompts/dailyPrompt';
 
 const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 interface GenerateParams {
   phase: CyclePhase;
@@ -27,26 +27,30 @@ export async function generateDailyContent(params: GenerateParams): Promise<Dail
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 2048,
+          thinkingConfig: { thinkingBudget: 0 },
         },
       }),
     });
 
+    if (response.status === 429) throw new Error('rate_limited');
     if (!response.ok) return null;
 
     const data = await response.json();
-    const rawText: string = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const parts: { text?: string; thought?: boolean }[] = data?.candidates?.[0]?.content?.parts ?? [];
+    const rawText: string = parts.filter(p => !p.thought).map(p => p.text ?? '').join('');
+    console.log('[Gemini] ok — tokens used:', data?.usageMetadata?.totalTokenCount);
 
     const cleaned = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const parsed = JSON.parse(cleaned) as DailyAIContent;
 
-    // Basic validation
     if (!parsed.insight || !parsed.workout || !parsed.meals?.breakfast) return null;
 
     return {
       ...parsed,
       date: new Date().toISOString().split('T')[0],
     };
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.message === 'rate_limited') throw e;
     return null;
   }
 }
