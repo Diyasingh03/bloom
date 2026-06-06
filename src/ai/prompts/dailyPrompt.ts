@@ -1,6 +1,20 @@
-import { CyclePhase, FloPredictions, GroceryItem } from '../../types';
+import { CyclePhase, FloPredictions, GroceryItem, UserConstraints } from '../../types';
 import { PhaseThemes } from '../../constants/theme';
 import { getDaysUntil } from '../../features/cycle/utils/cycleCalculations';
+
+const APPLIANCE_LABELS: Record<string, string> = {
+  stovetop: 'Stovetop (pots and pans)',
+  microwave: 'Microwave',
+  oven: 'Oven',
+  airFryer: 'Air fryer',
+};
+
+function buildCookingBlock(c: UserConstraints['cookingAppliances']): string {
+  const active = (Object.keys(c) as (keyof typeof c)[]).filter(k => c[k]).map(k => APPLIANCE_LABELS[k]);
+  const inactive = (Object.keys(c) as (keyof typeof c)[]).filter(k => !c[k]).map(k => APPLIANCE_LABELS[k]);
+  const line = active.join(' and ') + ' ONLY';
+  return inactive.length ? `${line} — absolutely no ${inactive.join(' or ')}` : line;
+}
 
 interface PromptParams {
   phase: CyclePhase;
@@ -8,10 +22,11 @@ interface PromptParams {
   cycleLength: number;
   inStockItems: GroceryItem[];
   predictions?: FloPredictions | null;
+  constraints: UserConstraints;
 }
 
 export function buildDailyPrompt(params: PromptParams): string {
-  const { phase, cycleDay, cycleLength, inStockItems, predictions } = params;
+  const { phase, cycleDay, cycleLength, inStockItems, predictions, constraints } = params;
   const phaseLabel = PhaseThemes[phase].label;
 
   const groceryList = inStockItems.length > 0
@@ -26,6 +41,8 @@ Flo app predictions:
 Factor these into your recommendations (e.g. if ovulation is tomorrow, suggest peak-energy workout; if period is in 2 days, focus on anti-cramp foods and gentler movement).`
     : '';
 
+  const equipmentList = constraints.equipment.map(e => `- ${e}`).join('\n');
+
   return `You are a PCOS wellness assistant for a personal iOS app. Generate today's personalised daily content.
 
 USER CONTEXT:
@@ -34,15 +51,11 @@ USER CONTEXT:
 - Current phase: ${phaseLabel}
 ${predictionsBlock}
 
-AVAILABLE WORKOUT EQUIPMENT (home only, no gym):
-- Pilates mat
-- Small water bottles (light hand weights)
-- Two gallon milk containers (~8 lbs each) as dumbbells
-- Treadmill
-- Stationary cycle machine
+AVAILABLE WORKOUT EQUIPMENT:
+${equipmentList}
 
 COOKING CONSTRAINTS:
-- Stovetop (pots and pans) and microwave ONLY — absolutely no oven
+- ${buildCookingBlock(constraints.cookingAppliances)}
 - Prefer ingredients from the grocery list below
 - You may suggest 1–2 additional ingredients to order, prefixed with "💡 Could add:"
 
@@ -50,11 +63,7 @@ CURRENT GROCERY LIST (items in stock):
 ${groceryList}
 
 DIETARY NOTES:
-- User loves dairy (yogurt, cheese, milk)
-- Eats eggs, ham (pre-cooked/sliced), frozen patties, avocado
-- Willing to cook raw chicken on the stovetop
-- Does not eat whole fruit but drinks fruit juices
-- Focus on low GI, anti-inflammatory, PCOS-appropriate nutrition
+${constraints.dietaryNotes}
 
 Generate a response with EXACTLY this JSON structure. Return ONLY valid JSON — no markdown, no explanation, no code fences:
 

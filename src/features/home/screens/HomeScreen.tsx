@@ -10,7 +10,7 @@ import { WorkoutDetailModal } from '../../workouts/components/WorkoutDetailModal
 import { QuickSymptomRow } from '../components/QuickSymptomRow';
 import { AIStatusBadge } from '../../../components/AIStatusBadge';
 import { PhaseGradient } from '../../../components/PhaseGradient';
-import { PrivacyPolicyModal } from '../../../components/PrivacyPolicyModal';
+import { ConstraintsModal } from '../../../components/ConstraintsModal';
 import { meals as staticMeals } from '../../meals/data/meals';
 import { workouts as staticWorkouts } from '../../workouts/data/workouts';
 import { Colors, Typography, Spacing } from '../../../constants/theme';
@@ -28,7 +28,7 @@ export function HomeScreen() {
   const cycle = useCycleData();
   const gemini = useGemini();
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | (AIWorkout & { phase?: CyclePhase }) | null>(null);
-  const [privacyVisible, setPrivacyVisible] = useState(false);
+  const [constraintsVisible, setConstraintsVisible] = useState(false);
 
   // Fallback meal and workout from static data
   const phaseStaticMeals = staticMeals.filter((m) => m.phases.includes(cycle.phase) && m.type === 'breakfast');
@@ -65,15 +65,21 @@ export function HomeScreen() {
                 error={gemini.error}
               />
               <TouchableOpacity
-                onPress={() => setPrivacyVisible(true)}
+                onPress={() => setConstraintsVisible(true)}
                 style={styles.infoBtn}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Text style={styles.infoBtnText}>ℹ️</Text>
+                <Text style={styles.infoBtnText}>⚙️</Text>
               </TouchableOpacity>
             </View>
           </View>
-          <PrivacyPolicyModal visible={privacyVisible} onClose={() => setPrivacyVisible(false)} />
+          <ConstraintsModal
+            visible={constraintsVisible}
+            onClose={() => setConstraintsVisible(false)}
+            constraints={gemini.constraints}
+            onSave={gemini.saveConstraints}
+            onRegenerate={gemini.regenerate}
+          />
 
           {/* AI motivational message */}
           {gemini.dailyContent?.motivationalMessage && (

@@ -134,6 +134,18 @@ export interface DailyAIContent {
   };
 }
 
+// ─── User Constraints ──────────────────────────────────────────────────────
+export interface UserConstraints {
+  cookingAppliances: {
+    stovetop: boolean;
+    microwave: boolean;
+    oven: boolean;
+    airFryer: boolean;
+  };
+  equipment: string[];
+  dietaryNotes: string;
+}
+
 // ─── UI Helpers ────────────────────────────────────────────────────────────
 export interface PhaseTheme {
   primary: string;

@@ -1,6 +1,7 @@
-import { DailyAIContent, CyclePhase, FloPredictions, GroceryItem } from '../../types';
+import { DailyAIContent, CyclePhase, FloPredictions, GroceryItem, UserConstraints } from '../../types';
 import { buildDailyPrompt } from '../prompts/dailyPrompt';
 import { config } from '../../lib/config';
+import { DEFAULT_CONSTRAINTS } from '../../lib/defaultConstraints';
 
 const GEMINI_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
@@ -11,13 +12,17 @@ interface GenerateParams {
   cycleLength: number;
   inStockItems: GroceryItem[];
   predictions?: FloPredictions | null;
+  constraints?: UserConstraints;
 }
 
 export async function generateDailyContent(params: GenerateParams): Promise<DailyAIContent | null> {
   const apiKey = config.geminiApiKey;
   if (!apiKey || apiKey === 'your_gemini_api_key_here') return null;
 
-  const prompt = buildDailyPrompt(params);
+  const prompt = buildDailyPrompt({
+    ...params,
+    constraints: params.constraints ?? DEFAULT_CONSTRAINTS,
+  });
 
   try {
     const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {

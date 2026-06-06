@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DailyAIContent, CyclePhase, FloPredictions, GroceryItem } from '../../types';
+import { DailyAIContent, CyclePhase, FloPredictions, GroceryItem, UserConstraints } from '../../types';
 import { storageGet, storageSet, storageRemove, STORAGE_KEYS } from '../../lib/storage';
 import { generateDailyContent } from '../services/geminiService';
 
@@ -9,6 +9,7 @@ interface GeminiDailyParams {
   cycleLength: number;
   inStockItems: GroceryItem[];
   predictions?: FloPredictions | null;
+  constraints?: UserConstraints;
   ready: boolean;
 }
 
@@ -51,6 +52,7 @@ export function useGeminiDaily(params: GeminiDailyParams): GeminiDailyState {
         cycleLength: params.cycleLength,
         inStockItems: params.inStockItems,
         predictions: params.predictions,
+        constraints: params.constraints,
       });
 
       if (result) {
