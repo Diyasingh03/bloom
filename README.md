@@ -29,7 +29,7 @@ Generic apps don't know you're in luteal phase and exhausted, or that you only h
 | Tab | What it does |
 |---|---|
 | **Home** | Daily greeting, AI insight, today's breakfast + featured workout, quick symptom log |
-| **Cycle** | SVG cycle wheel, phase tips, auto-computed predictions with confidence range, cycle history, JSON import |
+| **Cycle** | SVG cycle wheel, phase tips, auto-computed predictions with confidence range, cycle history, Flo data import; **Trends** screen with scrollable bar charts for cycle length, period length, and ovulation timing across full history |
 | **Meals** | AI meal plan for today + static meals filtered by phase |
 | **Move** | AI workout of the day + static workouts by phase, full step-by-step detail modal |
 | **Pantry** | Grocery list by category; in-stock items feed the daily AI prompt |
@@ -45,7 +45,7 @@ Generic apps don't know you're in luteal phase and exhausted, or that you only h
 | Routing | Expo Router v4 (file-based) |
 | AI | Gemini 2.5 Flash (REST, free tier) |
 | Storage | AsyncStorage — all data local, no backend |
-| Graphics | React Native SVG (cycle wheel) |
+| Graphics | React Native SVG (cycle wheel + trend charts) |
 | Dates | date-fns v4 |
 
 ---
@@ -74,7 +74,13 @@ npx expo start --tunnel  # restricted WiFi
 
 ## Importing cycle data
 
-On the Cycle tab → **+ Import data** — paste a JSON export in this format:
+On the Cycle tab → **+ Import data**. Three formats are supported:
+
+**Flo JSON export** (`flo.json`) — upload directly from your Files app. The app reads `operationalData.cycles` and extracts ovulation dates from Eggwhite fluid events or ML predictions.
+
+**Flo text export** (`res.txt`) — upload the plain-text export from Flo. Cycle blocks and manual events are parsed automatically.
+
+**Simplified JSON** — paste manually in this format:
 
 ```json
 {
@@ -90,12 +96,12 @@ On the Cycle tab → **+ Import data** — paste a JSON export in this format:
 }
 ```
 
-`ovulation` is optional. Importing replaces the current cycle history and immediately recalculates predictions.
+`ovulation` is optional in all formats. Importing replaces the current cycle history and immediately recalculates predictions.
 
 ---
 
 ## Future plans
 
-- Symptom trend charts across the cycle
+- Symptom charts across the cycle (how PCOS symptoms correlate with phase)
 - Meal ingredient → Pantry shortcut (tap an ingredient to add it)
-- More robust prediction model.
+- More robust prediction model

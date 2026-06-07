@@ -19,6 +19,9 @@ npx expo install <package-name>
 
 # Install JS-only packages — always add --legacy-peer-deps
 npm install <package-name> --legacy-peer-deps
+
+# Regenerate private seed data from a new Flo export (outputs TS to stdout)
+npx tsx data/floParser.ts flo.json > data/floData.ts
 ```
 
 > Always use `--legacy-peer-deps` with plain `npm install` — there is a minor react version mismatch (19.1.0 installed vs 19.2.x expected by some sub-deps) that makes npm refuse otherwise.
@@ -44,6 +47,7 @@ app/(tabs)/meals.tsx     ← MealsScreen
 app/(tabs)/workouts.tsx  ← WorkoutsScreen
 app/(tabs)/groceries.tsx ← GroceriesScreen
 app/(tabs)/track.tsx     ← TrackScreen
+app/cycle-stats.tsx      ← CycleStatsScreen (pushed via router.push('/cycle-stats') from CycleScreen)
 ```
 
 `app/_layout.tsx` checks `STORAGE_KEYS.DISCLAIMER_ACCEPTED` on mount and renders `<DisclaimerModal>` until the user acknowledges it. This is the only logic that lives in the routing layer.
@@ -92,7 +96,12 @@ When `isUsingFallback` is true, screens fall back to static data from `meals.ts`
 - **`cycleCalculations.ts`** — PCOS-adjusted phase boundaries: menstrual 1–5, follicular 6–13, ovulatory 14–(cycleLength−14), luteal remainder. `getAverageCycleLength` filters cycles shorter than 15 days to exclude anomalies.
 - **`cyclePredictions.ts`** — `computePredictions(cycles)` is the primary prediction source. Uses exponential decay weighting (decay=0.7) over the last 6 complete cycles (≥15 days) anchored to the most recent period start. Derives ovulation from average luteal phase computed from historical `cycle.ovulation` fields (consistently ~15 days). Returns `FloPredictions & { confidence: number }` where `confidence` is the std dev of recent cycle lengths in days.
 
-`floPlaceholder.ts` contains real cleaned cycle history (not synthetic). It is the data source until the user imports a new JSON export via `ImportCycleModal`.
+`floPlaceholder.ts` is a **fallback-only template** with synthetic cycles used when no private data exists. The real seed data lives in `data/floData.ts` (gitignored) — see the Private seed data section below. `useCycleData()` prefers `data/floData.ts` over the placeholder via `floUserData ?? floPlaceholderData`.
+
+### Cycle stats screen (`src/features/cycle/`)
+
+- **`utils/cycleStats.ts`** — `computeCycleStats(cycles)` returns `CycleStats` with averages, std dev, trend direction, regularity change, `chartCycles: ChartCycle[]`, and `ovulationPoints: OvulationPoint[]`. Trend compares mean of last 4 vs prior 4 complete cycles; regularity compares stdDev of each half.
+- **`screens/CycleStatsScreen.tsx`** — SVG bar charts for cycle length, period length, and ovulation timing. Charts use a fixed `BAR_W = 18px` and are wrapped in horizontal `ScrollView` so they scroll with 30+ cycles rather than squishing. Each chart has a fixed Y-axis column (`AXIS_W = 30`) outside the scroll area.
 
 ### Shared components (`src/components/`)
 
@@ -125,6 +134,36 @@ Computed predictions are **never** written to storage — they are derived on de
 ### Design system (`src/constants/theme.ts`)
 
 `Colors`, `PhaseThemes`, `Spacing`, `Radius`, `Typography` are the only sources of truth for visual values. `PhaseThemes[phase].primary` drives phase-tinted UI. All backgrounds are `Colors.white` — no off-white surfaces.
+
+### Flo import (`src/lib/floImport.ts`)
+
+Unified parser for three Flo export formats:
+- `parseFloJson()` — app's own simplified JSON (`{ cycles: [...] }`)
+- `parseFloJsonExport()` — raw `flo.json` from Flo app (`operationalData.cycles` + `point_events_manual_v2`)
+- `parseFloTxtExport()` — `res.txt` text export from Flo app
+
+`parseAnyFloData(raw)` auto-detects format and returns `{ data: FloData; format: FloImportFormat } | null`. Used by `ImportCycleModal`, which supports both file picking (`expo-document-picker` + `expo-file-system`) and paste input.
+
+### Constraints (`src/lib/defaultConstraints.ts`)
+
+`DEFAULT_CONSTRAINTS` (type `UserConstraints`) holds the current cooking appliances, equipment list, and dietary notes. `EQUIPMENT_OPTIONS` is the full selectable list. These feed into the AI prompt via `GeminiContext`.
+
+### Private seed data (`data/`)
+
+`data/` is gitignored. Anyone cloning the repo gets only the placeholder; the owner's real data lives here.
+
+- **`data/floData.ts`** — real cycle history exported as `floUserData: FloData`; imported by `useCycleData()` as the default seed
+- **`data/floParser.ts`** — dev-only script to regenerate `floData.ts` from a new Flo export:
+
+```bash
+# Regenerate data/floData.ts from a new flo.json export
+npx tsx data/floParser.ts flo.json > data/floData.ts
+
+# Or from res.txt
+npx tsx data/floParser.ts res.txt > data/floData.ts
+```
+
+The parser extracts ovulation dates from both Eggwhite fluid events (observed) and `additional_fields` ML predictions (fallback). Stats go to stderr; TypeScript source goes to stdout.
 
 ## Environment
 
