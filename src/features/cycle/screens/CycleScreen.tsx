@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { useCycleData } from '../hooks/useCycleData';
 import { useGemini } from '../../../ai/context/GeminiContext';
 import { CircularCycleView } from '../components/CircularCycleView';
@@ -100,12 +101,20 @@ export function CycleScreen() {
           <View style={styles.historySection}>
             <View style={styles.historyHeader}>
               <Text style={styles.historyTitle}>Cycle History</Text>
-              <TouchableOpacity
-                style={styles.importBtn}
-                onPress={() => setImportVisible(true)}
-              >
-                <Text style={styles.importBtnText}>+ Import data</Text>
-              </TouchableOpacity>
+              <View style={styles.historyActions}>
+                <TouchableOpacity
+                  style={styles.statsBtn}
+                  onPress={() => router.push('/cycle-stats')}
+                >
+                  <Text style={styles.statsBtnText}>Trends</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.importBtn}
+                  onPress={() => setImportVisible(true)}
+                >
+                  <Text style={styles.importBtnText}>+ Import</Text>
+                </TouchableOpacity>
+              </View>
             </View>
             <CycleHistoryList cycles={cycle.cycles} />
           </View>
@@ -143,6 +152,9 @@ const styles = StyleSheet.create({
   historySection: {},
   historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 4 },
   historyTitle: { ...Typography.heading3 },
+  historyActions: { flexDirection: 'row', gap: 8 },
+  statsBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: Colors.pastelPurple },
+  statsBtnText: { fontSize: 13, fontWeight: '600', color: Colors.textDark },
   importBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: Colors.pastelPurple },
   importBtnText: { fontSize: 13, fontWeight: '600', color: Colors.pastelPurple },
 });

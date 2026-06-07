@@ -2,6 +2,11 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FloData, CyclePhase, FloPredictions } from '../../../types';
 import { storageGet, storageSet, STORAGE_KEYS } from '../../../lib/storage';
 import { floPlaceholderData } from '../data/floPlaceholder';
+// Private user data lives in data/ (gitignored). When present it takes priority over
+// the generic placeholder. Others cloning the repo should create data/floData.ts.
+import { floUserData } from '../../../../data/floData';
+
+const DEFAULT_DATA: FloData = floUserData ?? floPlaceholderData;
 import {
   getMostRecentCycle,
   getAverageCycleLength,
@@ -27,7 +32,7 @@ export interface CycleState {
 }
 
 export function useCycleData(): CycleState {
-  const [floData, setFloData] = useState<FloData>(floPlaceholderData);
+  const [floData, setFloData] = useState<FloData>(DEFAULT_DATA);
   const [manualPredictions, setManualPredictions] = useState<FloPredictions | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

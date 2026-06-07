@@ -38,7 +38,6 @@ export function CycleHistoryList({ cycles }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Cycle History</Text>
       <FlatList
         data={sorted}
         keyExtractor={(item) => item.start_date}

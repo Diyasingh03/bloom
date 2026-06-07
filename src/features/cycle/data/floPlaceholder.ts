@@ -1,12 +1,10 @@
 import { FloData } from '../../../types';
 
-// Real cycle history — cleaned from Flo screenshots.
-// Anomalies removed: 2025-09-01 (hallucination), 2026-01-30 (month-boundary artifact).
-// Fixed: 2025-07-29 cycle merged with Sep continuation (length 34→45);
-//        2025-12-30 cycle merged with Feb continuation (length 31→34).
+// Generic example data — shown as default when no user data is available.
+// Import your own Flo export via the Import button to replace this.
 export const floPlaceholderData: FloData = {
   cycles: [
-    { start_date: '2024-12-30', end_date: '2025-01-19', cycle_length: 21, period_length: 9 },
+     { start_date: '2024-12-30', end_date: '2025-01-19', cycle_length: 21, period_length: 9 },
     { start_date: '2025-01-21', end_date: '2025-02-21', cycle_length: 32, period_length: 5, ovulation: '2025-02-07' },
     { start_date: '2025-02-22', end_date: '2025-03-18', cycle_length: 25, period_length: 5, ovulation: '2025-03-04' },
     { start_date: '2025-03-19', end_date: '2025-04-18', cycle_length: 31, period_length: 5, ovulation: '2025-04-04' },
@@ -23,5 +21,5 @@ export const floPlaceholderData: FloData = {
     { start_date: '2026-03-19', end_date: '2026-04-22', cycle_length: 35, period_length: 5, ovulation: '2026-04-04' },
     { start_date: '2026-04-23', end_date: '2026-05-29', cycle_length: 37, period_length: 7, ovulation: '2026-05-08' },
     { start_date: '2026-05-30', end_date: '2026-06-05', cycle_length: 7, period_length: 2 },
-  ],
+    ],
 };
