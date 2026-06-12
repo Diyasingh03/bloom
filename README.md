@@ -2,7 +2,7 @@
 
 A personal iOS app built after a PCOS diagnosis. It connects cycle tracking, phase-synced workouts, PCOS-friendly meal planning, and a daily Gemini AI plan — tuned to real-life constraints, not aspirational ones.
 
-Try it on **[Live demo →](https://your-app.vercel.app/demo.html)**
+Try it on **[Live demo →](https://bloom-pcos.vercel.app/demo.html)**
 
 ---
 
