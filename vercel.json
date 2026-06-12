@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx expo export --platform web && cp web-landing/demo.html dist/demo.html",
+  "buildCommand": "node scripts/ensure-flo-data.js && npx expo export --platform web && cp web-landing/demo.html dist/demo.html",
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

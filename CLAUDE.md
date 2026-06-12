@@ -150,7 +150,7 @@ Unified parser for three Flo export formats:
 
 ### Private seed data (`data/`)
 
-`data/` is gitignored. Anyone cloning the repo gets only the placeholder; the owner's real data lives here.
+`data/` is gitignored. Anyone cloning the repo gets only the placeholder; the owner's real data lives here. `scripts/ensure-flo-data.js` writes a null stub `data/floData.ts` when the real file is absent (run automatically as the first step of the Vercel `buildCommand`; fresh clones should run `node scripts/ensure-flo-data.js` once before `npx expo start`). It never touches an existing file.
 
 - **`data/floData.ts`** — real cycle history exported as `floUserData: FloData`; imported by `useCycleData()` as the default seed
 - **`data/floParser.ts`** — dev-only script to regenerate `floData.ts` from a new Flo export:
