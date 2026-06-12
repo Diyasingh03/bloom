@@ -1,6 +1,16 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Platform, Text } from 'react-native';
 import { Colors } from '../../src/constants/theme';
+
+type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
+
+function TabIcon({ name, emoji, color, size }: { name: IoniconsName; emoji: string; color: string; size: number }) {
+  if (Platform.OS === 'web') {
+    return <Text style={{ fontSize: 20, color, lineHeight: 26, textAlign: 'center' }}>{emoji}</Text>;
+  }
+  return <Ionicons name={name} size={size} color={color} />;
+}
 
 export default function TabsLayout() {
   return (
@@ -28,7 +38,7 @@ export default function TabsLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <TabIcon name="home" emoji="🏠" color={color} size={size} />
           ),
         }}
       />
@@ -37,7 +47,7 @@ export default function TabsLayout() {
         options={{
           title: 'Cycle',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="radio-button-on" size={size} color={color} />
+            <TabIcon name="radio-button-on" emoji="🌙" color={color} size={size} />
           ),
         }}
       />
@@ -46,7 +56,7 @@ export default function TabsLayout() {
         options={{
           title: 'Meals',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="restaurant" size={size} color={color} />
+            <TabIcon name="restaurant" emoji="🍽️" color={color} size={size} />
           ),
         }}
       />
@@ -55,7 +65,7 @@ export default function TabsLayout() {
         options={{
           title: 'Move',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="barbell" size={size} color={color} />
+            <TabIcon name="barbell" emoji="🏃‍♀️" color={color} size={size} />
           ),
         }}
       />
@@ -64,7 +74,7 @@ export default function TabsLayout() {
         options={{
           title: 'Pantry',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="basket" size={size} color={color} />
+            <TabIcon name="basket" emoji="🧺" color={color} size={size} />
           ),
         }}
       />
@@ -73,7 +83,7 @@ export default function TabsLayout() {
         options={{
           title: 'Track',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" size={size} color={color} />
+            <TabIcon name="heart" emoji="💜" color={color} size={size} />
           ),
         }}
       />

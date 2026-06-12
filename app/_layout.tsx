@@ -8,7 +8,7 @@ import { DisclaimerModal } from '../src/components/DisclaimerModal';
 import { storageGet, storageSet, STORAGE_KEYS } from '../src/lib/storage';
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ ...Ionicons.font });
+  const [fontsLoaded, fontError] = useFonts({ ...Ionicons.font });
   const [disclaimerReady, setDisclaimerReady] = useState(false);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
@@ -24,7 +24,7 @@ export default function RootLayout() {
     setDisclaimerAccepted(true);
   };
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded && !fontError) return null;
 
   return (
     <GeminiProvider>
