@@ -1,11 +1,14 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { useFonts } from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 import { GeminiProvider } from '../src/ai/context/GeminiContext';
 import { DisclaimerModal } from '../src/components/DisclaimerModal';
 import { storageGet, storageSet, STORAGE_KEYS } from '../src/lib/storage';
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({ ...Ionicons.font });
   const [disclaimerReady, setDisclaimerReady] = useState(false);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
@@ -20,6 +23,8 @@ export default function RootLayout() {
     await storageSet(STORAGE_KEYS.DISCLAIMER_ACCEPTED, true);
     setDisclaimerAccepted(true);
   };
+
+  if (!fontsLoaded) return null;
 
   return (
     <GeminiProvider>

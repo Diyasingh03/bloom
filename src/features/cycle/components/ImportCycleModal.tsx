@@ -124,24 +124,30 @@ export function ImportCycleModal({ visible, onClose, onImported }: Props) {
           >
             {/* Instructions */}
             <Text style={styles.instructions}>
-              Pick your Flo export file or paste its contents below.
+              {Platform.OS === 'web'
+                ? 'Paste your Flo export contents below.'
+                : 'Pick your Flo export file or paste its contents below.'}{' '}
               Supported: <Text style={styles.bold}>flo.json</Text> (full Flo export),{' '}
               <Text style={styles.bold}>res.txt</Text> (Flo text export), or a{' '}
               <Text style={styles.bold}>Bloom JSON</Text> file.
             </Text>
 
-            {/* File picker */}
-            <TouchableOpacity style={styles.pickBtn} onPress={handlePickFile}>
-              <Text style={styles.pickBtnText}>
-                {fileName ? `✓  ${fileName}` : 'Choose File (.json or .txt)'}
-              </Text>
-            </TouchableOpacity>
+            {/* File picker — native only */}
+            {Platform.OS !== 'web' && (
+              <>
+                <TouchableOpacity style={styles.pickBtn} onPress={handlePickFile}>
+                  <Text style={styles.pickBtnText}>
+                    {fileName ? `✓  ${fileName}` : 'Choose File (.json or .txt)'}
+                  </Text>
+                </TouchableOpacity>
 
-            <View style={styles.dividerRow}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerLabel}>or paste below</Text>
-              <View style={styles.dividerLine} />
-            </View>
+                <View style={styles.dividerRow}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerLabel}>or paste below</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+              </>
+            )}
 
             <View style={styles.warning}>
               <Text style={styles.warningText}>
@@ -264,7 +270,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     padding: 12,
     fontSize: 13,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', web: 'monospace' }),
     color: Colors.textDark,
     minHeight: 120,
     maxHeight: 220,

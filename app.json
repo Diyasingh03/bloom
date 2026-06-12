@@ -7,7 +7,11 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "platforms": ["ios"],
+    "platforms": ["ios", "web"],
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/icon.png"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.diya.bloom",
